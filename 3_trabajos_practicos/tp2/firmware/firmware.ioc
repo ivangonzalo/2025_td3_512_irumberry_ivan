@@ -2,7 +2,6 @@
 Mcu.Family=STM32F1
 RCC.PLLSourceVirtual=RCC_PLLSOURCE_HSE
 ProjectManager.MainLocation=Core/Src
-NVIC.ADC1_2_IRQn=true\:5\:0\:true\:false\:true\:true\:true
 RCC.MCOFreq_Value=72000000
 ProjectManager.ProjectFileName=firmware.ioc
 ADC1.Rank-0\#ChannelRegularConversion=1
@@ -14,7 +13,7 @@ Mcu.PinsNb=8
 ProjectManager.NoMain=false
 ADC1.IPParameters=Rank-0\#ChannelRegularConversion,master,Channel-0\#ChannelRegularConversion,SamplingTime-0\#ChannelRegularConversion,NbrOfConversionFlag
 RCC.PLLCLKFreq_Value=72000000
-ProjectManager.functionlistsort=2-SystemClock_Config-RCC-false-HAL-false
+ProjectManager.functionlistsort=1-SystemClock_Config-RCC-false-HAL-false
 RCC.ADCFreqValue=12000000
 ProjectManager.DefaultFWLocation=true
 NVIC.TIM1_UP_IRQn=true\:0\:0\:false\:false\:true\:false\:true
