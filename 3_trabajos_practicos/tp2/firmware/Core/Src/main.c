@@ -70,13 +70,17 @@ static void MX_USART1_UART_Init(void);
 
 void Tarea_EnviaUART(void *pvParameters) /* Tarea Consumidora */
 {
-	float sample;
+	int sample;
+	float voltage;
+	float temperature;
 	char uart_buffer[30];
 	while(1)
 	{
 		 xQueueReceive(queueADC, &sample, portMAX_DELAY);
-		 int entero = (int)sample;
-		 int decimales = (int)((sample - entero) * 100);
+		 voltage = (sample * 3.3f) / 4095.0f;
+		 temperature = voltage / 0.01f;// LM35: 10 mV/°C → 0.01 V/°C
+		 int entero = (int)temperature;
+		 int decimales = (int)((temperature - entero) * 100);
 
 		 snprintf(uart_buffer, sizeof(uart_buffer), "Temp: %d.%02d C\r\n", entero, decimales);
 		 HAL_UART_Transmit(&huart1, (uint8_t *)uart_buffer, strlen(uart_buffer), HAL_MAX_DELAY);
@@ -85,25 +89,13 @@ void Tarea_EnviaUART(void *pvParameters) /* Tarea Consumidora */
 	}
 }
 
-void Tarea_LeerTemperatura(void *pvParameters) /* Tarea Productora */
+void Tarea_LeerTemperatura(void *pvParameters) /* Dispara ADC cada 1 segundo */
 {
-	int sample;
-	float voltage;
-    float temperature;
 
 	while(1)
 	{
-		HAL_ADC_Start(&hadc1);
-		// Se debería quedar esperando a que termine de convertir el valor.
-		// Está tomando valores anterires y los manda a la cola.
-		// Para eso se usa HAL_ADC_PollForConversion(&hadc1, portMAX_DELAY);
-		HAL_ADC_PollForConversion(&hadc1, portMAX_DELAY);
-		sample = HAL_ADC_GetValue(&hadc1);
-		HAL_ADC_Stop(&hadc1);
-		voltage = (sample * 3.3f) / 4095.0f;
-		temperature = voltage / 0.01f;
-		xQueueSendToFront(queueADC, &temperature, portMAX_DELAY);
-		vTaskDelay(100);
+		HAL_ADC_Start_IT(&hadc1);
+		vTaskDelay(pdMS_TO_TICKS(1000));
 	}
 }
 
@@ -141,7 +133,7 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  queueADC = xQueueCreate(1, sizeof(float));
+  queueADC = xQueueCreate(1, sizeof(int));
 
   xTaskCreate(Tarea_LeerTemperatura, "", configMINIMAL_STACK_SIZE, NULL, 2, NULL);
   xTaskCreate(Tarea_EnviaUART      , "", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
@@ -298,6 +290,26 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+void ADC1_2_IRQHandler(void)
+{
+  /* USER CODE BEGIN ADC1_2_IRQn 0 */
+
+	static portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
+	static int adc_value;
+	adc_value = HAL_ADC_GetValue(&hadc1);
+	xQueueSendToBackFromISR(queueADC, &adc_value, &xHigherPriorityTaskWoken);
+
+  /* USER CODE END ADC1_2_IRQn 0 */
+
+  HAL_ADC_IRQHandler(&hadc1);
+
+  /* USER CODE BEGIN ADC1_2_IRQn 1 */
+
+  portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
+
+  /* USER CODE END ADC1_2_IRQn 1 */
+}
 
 /* USER CODE END 4 */
 
