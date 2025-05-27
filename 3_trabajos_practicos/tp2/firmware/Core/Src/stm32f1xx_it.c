@@ -56,6 +56,7 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern ADC_HandleTypeDef hadc1;
 extern TIM_HandleTypeDef htim1;
 
 /* USER CODE BEGIN EV */
@@ -144,7 +145,6 @@ void UsageFault_Handler(void)
   * @brief This function handles System service call via SWI instruction.
   */
 
-
 /**
   * @brief This function handles Debug monitor.
   */
@@ -174,6 +174,11 @@ void DebugMon_Handler(void)
 /* For the available peripheral interrupt handler names,                      */
 /* please refer to the startup file (startup_stm32f1xx.s).                    */
 /******************************************************************************/
+
+/**
+  * @brief This function handles ADC1 and ADC2 global interrupts.
+  */
+
 
 /**
   * @brief This function handles TIM1 update interrupt.
