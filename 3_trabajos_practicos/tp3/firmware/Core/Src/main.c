@@ -18,10 +18,10 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include <lcd.h>
 #include "main.h"
 #include "FreeRTOS.h"
 #include "task.h"
-#include "queue.h"
 #include "semphr.h"
 #include <string.h>
 
@@ -42,14 +42,16 @@
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 
-#define MAX_FREQ_COUNT 20000  // Margen extra para semáforo counting(como voy a contar 10000 pero dejo una tolerancia)
+// Handle del semáforo counting
+SemaphoreHandle_t semphrCounting;
+
 
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-TIM_HandleTypeDef htim2;
+I2C_HandleTypeDef hi2c1;
 
-UART_HandleTypeDef huart1;
+TIM_HandleTypeDef htim2;
 
 /* USER CODE BEGIN PV */
 
@@ -58,11 +60,9 @@ UART_HandleTypeDef huart1;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_I2C1_Init(void);
 static void MX_TIM2_Init(void);
-static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
-
-SemaphoreHandle_t smph_cnt;
 
 /* USER CODE END PFP */
 
@@ -91,47 +91,29 @@ void Set_PWM_Frequency(TIM_HandleTypeDef *htim, uint32_t freq)
     // Reiniciamos el contador y arrancamos de nuevo
     HAL_TIM_PWM_Start(htim, TIM_CHANNEL_1);
 }
-// --------------------------
-// Tarea para contar los flancos
-// --------------------------
 
-void Tarea_Contadora(void *argument) {
-    int estado_anterior = 0;
-    int estado_actual = 0;
 
-    while(1) {
-        estado_actual = HAL_GPIO_ReadPin(Freq_In_GPIO_Port, Freq_In_Pin);
-        if (estado_actual == GPIO_PIN_SET && estado_anterior == GPIO_PIN_RESET) {
-            xSemaphoreGive(smph_cnt);
+void Tarea_Contador(void *params)
+{
+    TickType_t tiempo_ms = xTaskGetTickCount();
+    uint32_t contador = 0;
+    char lcd_buffer[30];
+
+    while(1)
+    {
+        if (xTaskGetTickCount() - tiempo_ms >= pdMS_TO_TICKS(1000))
+        {
+            contador = 0;
+            contador=uxSemaphoreGetCount(semphrCounting);
+            snprintf(lcd_buffer, sizeof(lcd_buffer), "%d Hz", contador);
+            lcd_set_cursor(0,0);
+            lcd_string(lcd_buffer);
+
+            tiempo_ms = xTaskGetTickCount();
+            xQueueReset(semphrCounting);
         }
-        estado_anterior = estado_actual;
     }
 }
-
-// --------------------------
-// Tarea para enviar datos por Uart
-// --------------------------
-void Tarea_Uart(void *argument) {
-
-	char uart_buffer[30];
-    uint16_t freq;
-
-    for (;;) {
-        vTaskDelay(pdMS_TO_TICKS(1000)); // Espera 1 segundo (aca hace la ventana de medicion)
-
-        // Leer el conteo
-
-        freq= uxSemaphoreGetCount(smph_cnt);
-
-        // Resetear semáforo
-        xQueueReset(smph_cnt);
-
-        // Enviar por UART
-        snprintf(uart_buffer, sizeof(uart_buffer), "Freq: %d Hz\r\n", freq);
-        HAL_UART_Transmit(&huart1, (uint8_t *)uart_buffer, strlen(uart_buffer), HAL_MAX_DELAY);
-    }
-}
-
 /* USER CODE END 0 */
 
 /**
@@ -162,22 +144,23 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_I2C1_Init();
   MX_TIM2_Init();
-  MX_USART1_UART_Init();
+  lcd_init(&hi2c1, 0x27); //inicializo lcd
+
   /* USER CODE BEGIN 2 */
 
   Set_PWM_Frequency(&htim2, 10000); // Seteo PWM en 10 kHz
-  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
 
+    // Crear semáforo counting con capacidad 20000, contador inicial 0
+    semphrCounting = xSemaphoreCreateCounting(20000, 0);
 
+    // Crear tarea
+    xTaskCreate(Tarea_Contador, "", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
 
-  smph_cnt = xSemaphoreCreateCounting(MAX_FREQ_COUNT, 0);
-
-  xTaskCreate(Tarea_Contadora, "", configMINIMAL_STACK_SIZE,   NULL, 1, NULL); //Creamos una tarea con prioridad mas alta en este caso 2
-  xTaskCreate(Tarea_Uart     , "", configMINIMAL_STACK_SIZE*2, NULL, 2, NULL); //Creamos una tarea con prioridad mas baja en este caso 1
-
-  vTaskStartScheduler();
-
+    // Iniciar scheduler
+    vTaskStartScheduler();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -190,6 +173,16 @@ int main(void)
   }
   /* USER CODE END 3 */
 }
+void EXTI0_IRQHandler(void)
+{
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+    xSemaphoreGiveFromISR(semphrCounting, &xHigherPriorityTaskWoken);
+     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+
+    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
+}
+
 
 /**
   * @brief System Clock Configuration
@@ -227,6 +220,40 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+}
+
+/**
+  * @brief I2C1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_I2C1_Init(void)
+{
+
+  /* USER CODE BEGIN I2C1_Init 0 */
+
+  /* USER CODE END I2C1_Init 0 */
+
+  /* USER CODE BEGIN I2C1_Init 1 */
+
+  /* USER CODE END I2C1_Init 1 */
+  hi2c1.Instance = I2C1;
+  hi2c1.Init.ClockSpeed = 100000;
+  hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
+  hi2c1.Init.OwnAddress1 = 0;
+  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c1.Init.OwnAddress2 = 0;
+  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN I2C1_Init 2 */
+
+  /* USER CODE END I2C1_Init 2 */
+
 }
 
 /**
@@ -279,39 +306,6 @@ static void MX_TIM2_Init(void)
 }
 
 /**
-  * @brief USART1 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_USART1_UART_Init(void)
-{
-
-  /* USER CODE BEGIN USART1_Init 0 */
-
-  /* USER CODE END USART1_Init 0 */
-
-  /* USER CODE BEGIN USART1_Init 1 */
-
-  /* USER CODE END USART1_Init 1 */
-  huart1.Instance = USART1;
-  huart1.Init.BaudRate = 115200;
-  huart1.Init.WordLength = UART_WORDLENGTH_8B;
-  huart1.Init.StopBits = UART_STOPBITS_1;
-  huart1.Init.Parity = UART_PARITY_NONE;
-  huart1.Init.Mode = UART_MODE_TX_RX;
-  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN USART1_Init 2 */
-
-  /* USER CODE END USART1_Init 2 */
-
-}
-
-/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -325,11 +319,15 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
-  /*Configure GPIO pin : Freq_In_Pin */
-  GPIO_InitStruct.Pin = Freq_In_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  /*Configure GPIO pin : PB0 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(Freq_In_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI0_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(EXTI0_IRQn);
 
 }
 
