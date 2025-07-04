@@ -21,5 +21,5 @@ Subir en este directorio todos lo que haya servido de referencia para la EGA: ho
 
 ## Bibliografía
 
-
-
+- **Sistemas de control Benjamin-c-Kuo**:  [Libro](https://dademuchconnection.wordpress.com/wp-content/uploads/2017/07/sistemas-de-control-automatico-benjamin-c-kuo.pdf)
+- **Laboratorio de electrónica Industrial FRA**:  [Blog](https://leifrautn.blogspot.com/search/label/Electr%C3%B3nica%20industrial%201)
