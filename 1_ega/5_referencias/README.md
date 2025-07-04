@@ -15,7 +15,8 @@ Subir en este directorio todos lo que haya servido de referencia para la EGA: ho
 
 ## Repositorios
 
-
+- **AS5600**: [Repo](https://github.com/RobTillaart/AS5600.git)
+- **DRV8825**: [Ejemplo](https://github.com/MehmetTopuz/DRV8825-STM32.git)
 
 ---
 
