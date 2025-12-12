@@ -1,0 +1,22 @@
+Removed Pin From Net: NetName=PA2 Pin=CN2-7
+Removed Pin From Net: NetName=PA3 Pin=CN2-8
+Removed Pin From Net: NetName=PA4 Pin=CN2-9
+Add Component: Footprint Not Found 1*10P_FEMALE
+Added Pin To Net: NetName=PA4 Pin=CN1-17
+Added Pin To Net: NetName=PA3 Pin=CN1-18
+Added Pin To Net: NetName=PA2 Pin=CN1-19
+Add Pin To Net: Unknown Pin: Pin CN23-1
+Add Pin To Net: Unknown Pin: Pin CN23-2
+Add Pin To Net: Unknown Pin: Pin CN23-3
+Add Pin To Net: Unknown Pin: Pin CN23-4
+Add Pin To Net: Unknown Pin: Pin CN23-5
+Change Net Name : Old Net Name=PA2 New Net Name=PB13
+Change Net Name : Old Net Name=PA3 New Net Name=PB14
+Change Net Name : Old Net Name=PA4 New Net Name=PB15
+Added Pin To Net: NetName=PA2 Pin=CN2-7
+Added Net: Name=PA2
+Added Pin To Net: NetName=PA3 Pin=CN2-8
+Added Net: Name=PA3
+Added Pin To Net: NetName=PA4 Pin=CN2-9
+Added Net: Name=PA4
+Add Class Member: Failed to add class member : Component CN23 Header 5X1_Female
