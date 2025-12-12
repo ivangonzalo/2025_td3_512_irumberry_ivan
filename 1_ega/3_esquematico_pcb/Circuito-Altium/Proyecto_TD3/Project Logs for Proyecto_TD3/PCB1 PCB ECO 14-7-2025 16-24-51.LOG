@@ -1,0 +1,4 @@
+Removed Pin From Net: NetName=I2C_ENCO_DIR Pin=CN2-10
+Added Pin To Net: NetName=I2C_ENCO_DIR Pin=CN2-13
+Added Pin To Net: NetName=PA5 Pin=CN2-10
+Added Net: Name=PA5

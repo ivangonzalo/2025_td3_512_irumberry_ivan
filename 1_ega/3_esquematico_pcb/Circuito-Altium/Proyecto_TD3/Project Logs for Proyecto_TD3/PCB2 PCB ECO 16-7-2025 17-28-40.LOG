@@ -1,0 +1,16 @@
+Removed Pin From Net: NetName=PB8 Pin=CN1-5
+Removed Pin From Net: NetName=PB9 Pin=CN7-1
+Removed Pin From Net: NetName=PA0 Pin=U1-2
+Removed Pin From Net: NetName=PA10 Pin=U1-3
+Removed Pin From Net: NetName=PA12 Pin=U1-6
+Removed Pin From Net: NetName=PB9 Pin=U1-8
+Add Pin To Net: Unknown Pin: Pin CN1-15
+Add Pin To Net: Unknown Pin: Pin CN1-16
+Added Pin To Net: NetName=PA9 Pin=CN7-1
+Added Pin To Net: NetName=PA15 Pin=U1-2
+Added Pin To Net: NetName=PA12 Pin=U1-3
+Added Pin To Net: NetName=PA10 Pin=U1-6
+Added Pin To Net: NetName=PA9 Pin=U1-8
+Change Net Name : Old Net Name=PB8 New Net Name=PA8
+Added Pin To Net: NetName=PB8 Pin=CN1-5
+Added Net: Name=PB8

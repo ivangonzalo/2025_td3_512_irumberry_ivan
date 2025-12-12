@@ -1,0 +1,5 @@
+Removed Pin From Net: NetName=PWM_ADC8 Pin=CN2-13
+Added Pin To Net: NetName=PWM_ADC8 Pin=CN2-11
+Change Net Name : Old Net Name=PWM_ADC8 New Net Name=PWM_ADC6
+Added Pin To Net: NetName=PB0 Pin=CN2-13
+Added Net: Name=PB0

@@ -1,0 +1,22 @@
+Added Component: Designator=CN1(1*20P_FEMALE)
+Added Pin To Net: NetName=3V3D Pin=CN1-1
+Added Pin To Net: NetName=GND Pin=CN1-2
+Added Pin To Net: NetName=5V Pin=CN1-3
+Added Pin To Net: NetName=PB9 Pin=CN1-4
+Added Pin To Net: NetName=PB8 Pin=CN1-5
+Added Pin To Net: NetName=I2C1_SDA Pin=CN1-6
+Added Pin To Net: NetName=I2C1_SCL Pin=CN1-7
+Added Pin To Net: NetName=PB5 Pin=CN1-8
+Added Pin To Net: NetName=PB4 Pin=CN1-9
+Added Pin To Net: NetName=PB3 Pin=CN1-10
+Added Pin To Net: NetName=PA15 Pin=CN1-11
+Added Pin To Net: NetName=PA12 Pin=CN1-12
+Added Pin To Net: NetName=PA11 Pin=CN1-13
+Added Pin To Net: NetName=PA10 Pin=CN1-14
+Added Pin To Net: NetName=PA9 Pin=CN1-15
+Added Pin To Net: NetName=PA8 Pin=CN1-16
+Added Pin To Net: NetName=PB15 Pin=CN1-17
+Added Pin To Net: NetName=PB14 Pin=CN1-18
+Added Pin To Net: NetName=PB13 Pin=CN1-19
+Added Pin To Net: NetName=PB12 Pin=CN1-20
+Added Member To Class: ClassName=MainCircuit Member=Component CN1 Header 20x1_Female

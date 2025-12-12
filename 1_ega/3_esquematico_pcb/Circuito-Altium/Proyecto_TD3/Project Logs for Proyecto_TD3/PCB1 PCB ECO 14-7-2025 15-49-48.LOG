@@ -1,0 +1,16 @@
+Removed Pin From Net: NetName=PA15 Pin=CN1-11
+Removed Pin From Net: NetName=PB5 Pin=CN7-1
+Removed Pin From Net: NetName=PB5 Pin=U1-8
+Removed Pin From Net: NetName=+12 Pin=U1-9
+Added Component: Designator=CN22(TERMINAL_BLOCK_2_PIN)
+Added Pin To Net: NetName=PA15 Pin=CN1-5
+Added Pin To Net: NetName=PB9 Pin=CN7-1
+Added Pin To Net: NetName=GND Pin=CN22-1
+Added Pin To Net: NetName=PB9 Pin=U1-8
+Change Net Name : Old Net Name=PA15 New Net Name=PB8
+Added Pin To Net: NetName=NetCN22_2 Pin=CN22-2
+Added Pin To Net: NetName=NetCN22_2 Pin=U1-9
+Added Net: Name=NetCN22_2
+Added Pin To Net: NetName=PA15 Pin=CN1-11
+Added Net: Name=PA15
+Added Member To Class: ClassName=MainCircuit Member=Component CN22 CONN_02P

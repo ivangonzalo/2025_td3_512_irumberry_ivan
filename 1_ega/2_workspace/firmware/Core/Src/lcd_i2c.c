@@ -21,7 +21,7 @@ static void lcd_i2c_send(uint8_t data) {
     tx.n_bytes = 0;
     tx.data = NULL;
     xQueueSend(I2C_txQueue, &tx, portMAX_DELAY);
-    vTaskDelay(1); // Delay mínimo para asegurar el tiempo del LCD
+ //   vTaskDelay(1); // Delay mínimo para asegurar el tiempo del LCD
 }
 
 static void lcd_write_4bits(uint8_t data) {
@@ -52,9 +52,11 @@ void lcd_send_string(char* str) {
 }
 
 void lcd_goto_XY(uint8_t row, uint8_t col) {
-    uint8_t row_offsets[] = {0x00, 0x40};
+    uint8_t row_offsets[] = {0x00, 0x40, 0x14, 0x54};
+    if (row > 3) row = 3;  // protección
     lcd_send_command(0x80 | (col + row_offsets[row]));
 }
+
 
 void lcd_clear(void) {
     lcd_send_command(0x01);
@@ -77,4 +79,11 @@ void lcd_init(void) {
     vTaskDelay(2);
     lcd_send_command(0x06); // Entry mode set
     lcd_send_command(0x0C); // Display on, cursor off
+}
+void lcd_blink_on(void) {
+    lcd_send_command(0x0F); // Display ON, Cursor ON, Blink ON
+}
+
+void lcd_blink_off(void) {
+    lcd_send_command(0x0C); // Display ON, Cursor OFF, Blink OFF
 }
